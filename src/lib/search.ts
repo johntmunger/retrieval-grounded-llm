@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * Semantic Search Script for MDN RAG Application
- * 
+ * Search Script for MDN RAG Application
+ *
  * Performs vector similarity search using Voyage AI embeddings and PostgreSQL pgvector.
  * Uses cosine distance to find semantically similar document chunks.
- * 
+ *
  * Usage: npm run search "your question here"
  */
 
@@ -14,11 +14,15 @@ import { embedMany } from "ai";
 import postgres from "postgres";
 
 // Initialize database connection
-const connectionString = process.env.DATABASE_URL || "postgresql://example:example@localhost:5455/example";
+const connectionString =
+  process.env.DATABASE_URL ||
+  "postgresql://example:example@localhost:5455/example";
 const client = postgres(connectionString);
 
 // Initialize Voyage AI provider
-const apiKey = (process.env.VOYAGEAI_API_KEY || process.env.VOYAGE_API_KEY)?.trim();
+const apiKey = (
+  process.env.VOYAGEAI_API_KEY || process.env.VOYAGE_API_KEY
+)?.trim();
 if (!apiKey) {
   console.error("❌ No Voyage API key found");
   process.exit(1);
@@ -55,7 +59,9 @@ async function generateQuestionEmbedding(question: string): Promise<number[]> {
       },
     });
 
-    console.log(`✅ Generated embedding with ${embeddings[0].length} dimensions\n`);
+    console.log(
+      `✅ Generated embedding with ${embeddings[0].length} dimensions\n`,
+    );
     return embeddings[0];
   } catch (error) {
     console.error("❌ Error generating embedding:", error);
@@ -65,7 +71,7 @@ async function generateQuestionEmbedding(question: string): Promise<number[]> {
 
 /**
  * Search for semantically similar chunks using vector cosine similarity
- * 
+ *
  * Uses PostgreSQL pgvector's cosine distance operator (<=>)
  * Similarity = 1 - cosine_distance (higher score = more similar)
  */
@@ -117,7 +123,7 @@ async function searchSimilarChunks(
  */
 function displayResults(results: SearchResult[], question: string): void {
   console.log("\n" + "=".repeat(80));
-  console.log(`📊 SEMANTIC SEARCH RESULTS FOR: "${question}"`);
+  console.log(`📊 SEARCH RESULTS FOR: "${question}"`);
   console.log("=".repeat(80));
 
   if (results.length === 0) {
@@ -157,14 +163,14 @@ function displayResults(results: SearchResult[], question: string): void {
 }
 
 /**
- * Main function to perform semantic search
+ * Main function to perform search
  */
 async function performSemanticSearch(
   question: string,
   limit: number = 5,
 ): Promise<SearchResult[]> {
   const similarityThreshold = 0.0; // Minimum similarity score (0-1)
-  console.log("🚀 Starting semantic search...\n");
+  console.log("🚀 Starting search...\n");
 
   // Validate question
   if (!question || question.trim().length === 0) {
@@ -195,7 +201,7 @@ async function performSemanticSearch(
 
     return results;
   } catch (error) {
-    console.error("❌ Semantic search failed:", error);
+    console.error("❌ Search failed:", error);
     throw error;
   }
 }
@@ -245,4 +251,8 @@ if (require.main === module) {
 }
 
 // Export for potential use as a module
-export { performSemanticSearch, generateQuestionEmbedding, searchSimilarChunks };
+export {
+  performSemanticSearch,
+  generateQuestionEmbedding,
+  searchSimilarChunks,
+};

@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 /**
  * RAG Query Script for MDN Documentation
- * 
+ *
  * Complete RAG pipeline:
- * 1. Retrieve - Semantic search for relevant doc chunks
+ * 1. Retrieve - search for relevant doc chunks
  * 2. Augment - Build context from retrieved chunks
  * 3. Generate - Use Claude to generate answer with context
- * 
+ *
  * Supports both streaming and non-streaming modes.
  * This script serves as a reference for UI implementation.
- * 
- * Usage: 
+ *
+ * Usage:
  *   npm run ask "How do closures work in JavaScript?"
  *   npm run ask "What is async/await?" -- --stream
  *   npm run ask "Explain promises" -- --limit=10
@@ -23,11 +23,13 @@ import {
   generateQuestionEmbedding,
   searchSimilarChunks,
   type SearchResult,
-} from "./semantic-search";
+} from "./search";
 import postgres from "postgres";
 
 // Initialize database connection
-const connectionString = process.env.DATABASE_URL || "postgresql://example:example@localhost:5455/example";
+const connectionString =
+  process.env.DATABASE_URL ||
+  "postgresql://example:example@localhost:5455/example";
 const client = postgres(connectionString);
 
 /**
@@ -50,13 +52,15 @@ function buildContext(results: SearchResult[]): string {
     }
 
     if (result.slug) {
-      parts.push(`URL: https://developer.mozilla.org/en-US/docs/${result.slug}`);
+      parts.push(
+        `URL: https://developer.mozilla.org/en-US/docs/${result.slug}`,
+      );
     }
 
     parts.push(
       `Relevance: ${(result.similarity * 100).toFixed(1)}%`,
       `\nContent:\n${result.text}`,
-      "" // Empty line for spacing
+      "", // Empty line for spacing
     );
 
     return parts.join("\n");
@@ -98,8 +102,8 @@ async function ragQueryNonStreaming(
     temperature?: number;
   } = {},
 ): Promise<string> {
-  const { 
-    limit = 5, 
+  const {
+    limit = 5,
     model = "claude-3-haiku-20240307",
     temperature = 0.3,
   } = options;
@@ -121,7 +125,9 @@ async function ragQueryNonStreaming(
   console.log(`✅ Retrieved ${searchResults.length} relevant chunks\n`);
   console.log("📊 Top Results:");
   searchResults.forEach((result, index) => {
-    console.log(`   ${index + 1}. ${result.title || result.source} (${(result.similarity * 100).toFixed(1)}%)`);
+    console.log(
+      `   ${index + 1}. ${result.title || result.source} (${(result.similarity * 100).toFixed(1)}%)`,
+    );
   });
 
   // Step 2: Build context from retrieved chunks
@@ -164,8 +170,8 @@ async function ragQueryStreaming(
     temperature?: number;
   } = {},
 ): Promise<void> {
-  const { 
-    limit = 5, 
+  const {
+    limit = 5,
     model = "claude-3-haiku-20240307",
     temperature = 0.3,
   } = options;
@@ -187,7 +193,9 @@ async function ragQueryStreaming(
   console.log(`✅ Retrieved ${searchResults.length} relevant chunks\n`);
   console.log("📊 Top Results:");
   searchResults.forEach((result, index) => {
-    console.log(`   ${index + 1}. ${result.title || result.source} (${(result.similarity * 100).toFixed(1)}%)`);
+    console.log(
+      `   ${index + 1}. ${result.title || result.source} (${(result.similarity * 100).toFixed(1)}%)`,
+    );
   });
 
   // Step 2: Build context from retrieved chunks
@@ -195,7 +203,7 @@ async function ragQueryStreaming(
 
   // Step 3: Stream response using Claude
   console.log("\n🤖 Streaming response from Claude...\n");
-  console.log("=" .repeat(80));
+  console.log("=".repeat(80));
 
   const result = await streamText({
     model: anthropic(model),
@@ -255,7 +263,9 @@ async function main(): Promise<void> {
     console.log('  npm run ask "your question here"');
     console.log('  npm run ask "your question" -- --stream');
     console.log('  npm run ask "your question" -- --limit=10');
-    console.log('  npm run ask "your question" -- --model=claude-3-haiku-20240307');
+    console.log(
+      '  npm run ask "your question" -- --model=claude-3-haiku-20240307',
+    );
     process.exit(1);
   }
 
@@ -282,8 +292,8 @@ async function main(): Promise<void> {
     } else {
       // Non-streaming mode (easier to read in CLI)
       const answer = await ragQueryNonStreaming(question, { limit, model });
-      
-      console.log("=" .repeat(80));
+
+      console.log("=".repeat(80));
       console.log("💬 Answer:\n");
       console.log(answer);
       console.log("\n" + "=".repeat(80) + "\n");
@@ -305,8 +315,8 @@ if (require.main === module) {
 }
 
 // Export for use in UI/API routes
-export { 
-  ragQueryNonStreaming, 
+export {
+  ragQueryNonStreaming,
   ragQueryStreaming,
   buildContext,
   getSystemPrompt,

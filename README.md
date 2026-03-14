@@ -236,16 +236,16 @@ rag-mdn
 
 Each component corresponds to a stage of the RAG pipeline.
 
-## Related Repositories
+# System Repositories
 
-This repository is part of a larger system.
+This project is part of a modular AI system composed of several repositories.
 
-| Repository        | Purpose                                |
-| ----------------- | -------------------------------------- |
-| control-plane     | agent runtime architecture             |
-| ai-runtime-server | RAG runtime and chat API               |
-| rag-mdn           | documentation ingestion and embeddings |
-| runtime-ui        | chat interface demo                    |
+| Repository                                                            | Description                                                      |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [control-plane](https://github.com/johntmunger/ai-control-plane)      | Agent runtime architecture (orchestrator, policy, kernel, tools) |
+| [ai-runtime-server](https://github.com/johntmunger/ai-runtime-server) | Retrieval-Augmented Generation (RAG) runtime and chat API        |
+| [rag-mdn](https://github.com/johntmunger/retrieval-grounded-llm)      | Documentation ingestion and embedding pipeline                   |
+| [runtime-ui](https://github.com/johntmunger/ai-runtime-ui)            | Chat interface for interacting with the runtime                  |
 
 ## Summary
 

@@ -1,11 +1,122 @@
 # Changelog
 
-All notable changes to the MDN Developer Chat project will be documented in this file.
+All notable changes to the retrieval-grounded-llm (RAG) project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2026-02-11
+## [0.2.0] — 2026-03-12 — Architecture Refactor
+
+### Overview
+
+Refactored the system from a monolithic RAG application into a modular, layered AI architecture separating UI, runtime, and data pipeline responsibilities.
+
+---
+
+## Added
+
+### runtime-ui (new repository)
+
+- Extracted chat interface into standalone React/Vite application
+- Implemented API integration with `/chat` endpoint
+- Added markdown rendering and code block support
+- Added citation display layer
+- Decoupled UI from backend and retrieval logic
+
+---
+
+## Added
+
+### ai-runtime-server (new runtime layer)
+
+- Introduced dedicated RAG runtime service
+- Implemented `/chat` and `/search` endpoints
+- Added query embedding generation using OpenAI embeddings
+- Integrated pgvector similarity search
+- Implemented hybrid retrieval:
+  - vector similarity (`embedding <->`)
+  - full-text ranking (`ts_rank`)
+- Built context assembly pipeline for LLM prompting
+- Integrated Anthropic Claude for response generation
+- Added structured citation generation:
+  - title
+  - URL (MDN mapping)
+  - excerpt
+- Implemented source deduplication and truncation
+
+---
+
+## Updated
+
+### rag-mdn (knowledge pipeline)
+
+- Removed runtime responsibilities (LLM + API handling)
+- Scoped repository to:
+  - document ingestion
+  - semantic chunking
+  - embedding generation
+  - vector storage
+- Preserved structured markdown processing and chunking strategies
+- Maintained evaluation workflows (Promptfoo)
+
+---
+
+## Updated
+
+### control-plane (architecture layer)
+
+- Clarified role as architectural reference, not runtime service
+- Documented layered agent runtime model:
+  - transport
+  - orchestrator
+  - policy
+  - kernel
+  - tools
+- Positioned as foundation for future runtime expansion
+- Aligned runtime-server implementation with control-plane concepts
+
+---
+
+## Changed
+
+### System Architecture
+
+**Before:**
+
+UI → rag-mdn (everything)
+
+**After:**
+
+runtime-ui  
+↓  
+ai-runtime-server  
+↓  
+control-plane (architecture model)  
+↓  
+rag-mdn  
+↓  
+pgvector
+
+---
+
+## Improved
+
+- Separation of concerns across system layers
+- Retrieval quality via hybrid ranking strategy
+- Citation clarity and traceability
+- System extensibility and maintainability
+- Alignment with production AI platform patterns
+
+---
+
+## Notes
+
+This refactor establishes a foundation for:
+
+- agent-based runtime expansion
+- tool execution frameworks
+- multi-model orchestration
+- scalable AI platform architecture
 
 ### Added - Complete RAG Implementation
 
@@ -33,12 +144,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **10x Faster Responses**: Switched from GPT-4 to GPT-3.5-turbo
   - Response time reduced from ~40s to ~2-4s
   - 90% cost reduction while maintaining quality
-  
 - **Response Caching**: In-memory cache for frequent queries
   - Stores 10 most recent queries with 1-hour TTL
   - Cached responses return in < 1 second
   - Skips expensive embedding and LLM calls
-  
 - **Reduced Token Limit**: Optimized max_tokens from 2048 to 1000
   - Faster generation
   - More concise answers
@@ -71,7 +180,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Refactored `scripts/semantic-search.ts` with improved function organization
   - Configured vector dimensions to 1024 (voyage-code-3 native dimension)
   - Updated database schema `src/db/schema/documents.ts` to vector(1024)
-  
 - **Semantic Search Refactoring**: Improved script structure following best practices
   - Renamed functions: `semanticSearch` → `searchSimilarChunks`
   - Added `generateQuestionEmbedding()` function
